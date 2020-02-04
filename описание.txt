@@ -1,13 +1,35 @@
-Заполнение таблицы 1млн записей
-надо сдлеать продюсер, который сделает тоже самое
-без селекта
 
+Задание
 1. сделать продюсер, который сгенерит 1млн записей и забросит в какой то топик кафки
 2. сделать в стринге, json, avro
 3. сделать тестовый получатель, чтобы просто был вывод значений (который делает обратный процесс - парсинг)
 4. далее сделать получателя на спарк стриминг (окно по 5 секунд) и в окне реализовать то действие, которое было в запросе (агрегация)
 (сумма, среднее и тд)
 5. запись информации в базу данных. соеденить каждые секундные интервалы в одно целое
+
+------------------------------------
+----- Типы файлов при передаче -----
+------------------------------------
+
+1. TYPE = 'CSV'
+    Значения разделены запятыми:
+    name,shop,traffic,success_sell
+
+2. TYPE = 'JSON'
+    Значения в формате json:
+    {name: "name", shop: "shop", traffic: "traffic", success_sell: "success_sell"}
+
+3. TYPE = 'AVRO'
+    Схема для данных:
+    {"type": "record",
+     "name": "Worker",
+     "fields": [
+         {"name": "name", "type": "string"},
+         {"name": "shop", "type": "int"},
+         {"name": "traffic", "type": "int"},
+         {"name": "success_sell", "type": "int"}
+        ]
+    }
 
 
 -- для подключения к своей базе
@@ -24,43 +46,12 @@ chmod +x consumer_simple.py
 chmod +x consumer.py
 
 
+-- запуск производителя
 python3.6 producer.py
 
+
+-- запуск различных получателей
 spark-submit --master local[1] consumer_simple.py
 spark-submit --master local[1] consumer.py
 spark-submit --master local[1] --packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.3 consumer_spark.py
 
-
-
-
-
-+-----------------+---+---+---+
-|               _1| _2| _3| _4|
-+-----------------+---+---+---+
-|  Petya Zelenskiu|  1|304|496|
-|Dmitriy Zelenskiu|  2|432|433|
-|    Petya Sidorov|  3|232| 14|
-|   Dmitriy Ivanov|  4|863|160|
-|   Sergey Sidorov|  5|830| 31|
-|   Vanya Medvedev|  6|179| 69|
-| Grisha Zelenskiu|  7|649| 95|
-|     Vanya Petrov|  8|436| 47|
-|  Petya Zelenskiu|  9|  0|566|
-| Sergey Zelenskiu| 10|532|344|
-+-----------------+---+---+---+
-
-
-+----+--------------------+
-|  _1|                  _2|
-+----+--------------------+
-|key0|Sergey Petrov,1,5...|
-|key1|Petya Ivanov,2,49...|
-|key2|Felix Ivanov,3,65...|
-|key3|Dmitriy Medvedev,...|
-|key4|Felix Zirinovski,...|
-|key5|Felix Medvedev,6,...|
-|key6|Sergey Sidorov,7,...|
-|key7|Sergey Ivanov,8,6...|
-|key8|Sergey Zelenskiu,...|
-|key9|Grisha Zelenskiu,...|
-+----+--------------------+
